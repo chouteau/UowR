@@ -36,6 +36,7 @@ namespace Uowr.Tests
 
 			await dbContext.InsertAsync(product);
 
+			// dbContext = new Uowr.SqlRepository<TestDbContext>();
 			product = await dbContext.GetAsync<Product>(i => i.Id == product.Id);
 
 			var category2 = new Category();

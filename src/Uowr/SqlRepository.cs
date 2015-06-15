@@ -15,6 +15,12 @@ namespace Uowr
 	public class SqlRepository<TContext> : IDisposable, IRepository<TContext>
 		where TContext : System.Data.Entity.DbContext, IObjectContextAdapter, new()
 	{
+		private Lazy<TContext> m_LazyDbContext
+			= new Lazy<TContext>(() =>
+				 {
+					 return new TContext();
+				 }, true);
+
 		public SqlRepository()
 		{
 			DbRepositoryId = Guid.NewGuid().ToString();
@@ -24,8 +30,7 @@ namespace Uowr
 
 		public virtual TContext GetDbContext()
 		{
-			var result = new TContext();
-			return result;
+			return m_LazyDbContext.Value;
 		}
 
 		public virtual T Get<T>(Expression<Func<T, bool>> predicate) where T : class
