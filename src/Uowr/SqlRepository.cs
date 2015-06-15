@@ -8,12 +8,20 @@ using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Core.Objects;
+using System.Reflection;
 
 namespace Uowr
 {
 	public class SqlRepository<TContext> : IDisposable, IRepository<TContext>
 		where TContext : System.Data.Entity.DbContext, IObjectContextAdapter, new()
 	{
+		public SqlRepository()
+		{
+			DbRepositoryId = Guid.NewGuid().ToString();
+		}
+
+		public string DbRepositoryId { get; private set; }
+
 		public virtual TContext GetDbContext()
 		{
 			var result = new TContext();
@@ -84,7 +92,6 @@ namespace Uowr
 				}
 				dbSet.Add(entity);
 				dbContext.ObjectContext.ObjectStateManager.ChangeObjectState(entity, EntityState.Added);
-
 				result = dbContext.SaveChanges();
 			}
 			catch (System.Data.Entity.Validation.DbEntityValidationException vex)
@@ -125,7 +132,21 @@ namespace Uowr
 				}
 				dbSet.Add(entity);
 				dbContext.ObjectContext.ObjectStateManager.ChangeObjectState(entity, EntityState.Added);
-
+				//var attachedEntities = GetAttachedEntityPropertyList(entity);
+				//foreach (var property in attachedEntities)
+				//{
+				//	var value = property.GetValue(entity);
+				//	if (value != null)
+				//	{
+				//		var subDbSet = dbContext.Set(property.PropertyType);
+				//		var subEntry = dbContext.Entry(value);
+				//		var ose = dbContext.ObjectContext.ObjectStateManager.GetObjectStateEntry(value);
+				//		if (ose.IsRelationship)
+				//		{
+				//			subDbSet.Attach(value);
+				//		}
+				//	}
+				//}
 				result = await dbContext.SaveChangesAsync();
 			}
 			catch (System.Data.Entity.Validation.DbEntityValidationException vex)
@@ -420,6 +441,21 @@ namespace Uowr
 			var dbContext = GetDbContext();
 			var result = await dbContext.ObjectContext.ExecuteStoreQueryAsync<T>(cmdText, parameters);
 			return result;
+		}
+
+		private bool IsEntityKeyGenerated<T>(System.Data.Entity.DbContext dbContext, T entity) where T : class
+		{
+			var objectContext = ((IObjectContextAdapter)dbContext).ObjectContext;
+			var set = objectContext.CreateObjectSet<T>();
+			var isKeyGenerated = set.EntitySet.ElementType.KeyMembers.Any(k => k.IsStoreGeneratedComputed | k.IsStoreGeneratedIdentity);
+			return isKeyGenerated;
+		}
+
+		private IEnumerable<PropertyInfo> GetAttachedEntityPropertyList<T>(T entity)
+		{
+			var nameSpace = entity.GetType().Namespace;
+			var properties = entity.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(i => i.PropertyType.Namespace == nameSpace);
+			return properties;
 		}
 
 		#region IDisposable Members

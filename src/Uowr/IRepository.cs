@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Uowr
 {
-	public interface IRepository<TContext>
+	public interface IRepository<TContext> : IDisposable
 		where TContext : System.Data.Entity.DbContext, System.Data.Entity.Infrastructure.IObjectContextAdapter, new()
 	{
 		TContext GetDbContext();
