@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Uowr.Tests
 {
-	public class Category
+	public class Category 
 	{
 		public string Id { get; set; }
 		[MaxLength(256)]
