@@ -10,7 +10,7 @@ namespace Uowr
 	public interface IRepository<TContext> : IDisposable
 		where TContext : System.Data.Entity.DbContext, System.Data.Entity.Infrastructure.IObjectContextAdapter, new()
 	{
-		TContext GetDbContext();
+		TContext DbContext { get; }
 
 		T Get<T>(System.Linq.Expressions.Expression<Func<T, bool>> predicate) where T : class;
 		Task<T> GetAsync<T>(System.Linq.Expressions.Expression<Func<T, bool>> predicate) where T : class;

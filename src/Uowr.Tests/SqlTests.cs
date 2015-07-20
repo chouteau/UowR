@@ -15,7 +15,6 @@ namespace Uowr.Tests
 			Database.SetInitializer(migrationStrategy);
 		}
 
-
 		[TestMethod]
 		public async Task CRUD()
 		{

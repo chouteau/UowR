@@ -1,0 +1,8 @@
+﻿1.1.1.0
+- Change Method GetDbContext() by property DbContext
+- One DbContext by instance of Repository
+- DbContext property disposed on dispose
+
+
+
+
